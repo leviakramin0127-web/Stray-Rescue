@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — StrayRescue Meerut{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="fade-in-up">
+            <h1><i class="bi bi-speedometer2" style="color: var(--accent-purple);"></i> Admin Dashboard</h1>
+            <p class="lead">Platform overview and management tools.</p>
+        </div>
+    </div>
+</section>
+
+<section style="padding: 0 0 4rem;">
+    <div class="container">
+        <!-- Stats Grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-4 col-xl-2 fade-in-up delay-1">
+                <div class="glass-card p-3 text-center h-100">
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-amber);">{{ stats.total_sightings }}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">Total Sightings</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2 fade-in-up delay-1">
+                <div class="glass-card p-3 text-center h-100">
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #f59e0b;">{{ stats.pending_sightings }}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">Pending</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2 fade-in-up delay-2">
+                <div class="glass-card p-3 text-center h-100">
+                    <div style="font-size: 1.8rem; font-weight: 800; color: #06b6d4;">{{ stats.claimed_sightings }}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">Claimed</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2 fade-in-up delay-2">
+                <div class="glass-card p-3 text-center h-100">
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-emerald);">{{ stats.resolved_sightings }}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">Resolved</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2 fade-in-up delay-3">
+                <div class="glass-card p-3 text-center h-100">
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-rose);">{{ stats.flagged_sightings }}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">Flagged</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-4 col-xl-2 fade-in-up delay-3">
+                <div class="glass-card p-3 text-center h-100">
+                    <div style="font-size: 1.8rem; font-weight: 800; color: var(--accent-purple);">{{ stats.total_users }}</div>
+                    <div style="font-size: 0.78rem; color: var(--text-muted); font-weight: 500;">Users</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-6 fade-in-up delay-2">
+                <div class="glass-card p-4">
+                    <h6 style="font-weight: 700; margin-bottom: 1rem;">
+                        <i class="bi bi-bar-chart-fill" style="color: var(--accent-purple);"></i> Sighting Status Breakdown
+                    </h6>
+                    <canvas id="sightingChart" height="260"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6 fade-in-up delay-3">
+                <div class="glass-card p-4">
+                    <h6 style="font-weight: 700; margin-bottom: 1rem;">
+                        <i class="bi bi-pie-chart-fill" style="color: var(--accent-amber);"></i> Platform Overview
+                    </h6>
+                    <canvas id="overviewChart" height="260"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4 fade-in-up delay-1">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16,185,129,0.12); display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-shield-check" style="font-size: 1.3rem; color: var(--accent-emerald);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 800;">{{ stats.total_rescues }}</div>
+                            <div style="font-size: 0.82rem; color: var(--text-muted);">Total Rescue Cases</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-up delay-2">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(244,63,94,0.12); display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-heart-fill" style="font-size: 1.3rem; color: var(--accent-rose);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 800;">{{ stats.adopted_count }} / {{ stats.total_adoptions }}</div>
+                            <div style="font-size: 0.82rem; color: var(--text-muted);">Adopted / Total Listed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 fade-in-up delay-3">
+                <div class="glass-card p-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(139,92,246,0.12); display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-building" style="font-size: 1.3rem; color: var(--accent-purple);"></i>
+                        </div>
+                        <div>
+                            <div style="font-size: 1.5rem; font-weight: 800;">{{ stats.total_ngos }}</div>
+                            <div style="font-size: 0.82rem; color: var(--text-muted);">Registered NGOs/Vets</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Flagged Sightings Review -->
+        {% if flagged %}
+        <div class="fade-in-up delay-2">
+            <h5 style="font-weight: 700; margin-bottom: 1rem;">
+                <i class="bi bi-flag-fill" style="color: var(--accent-rose);"></i> Flagged Sightings — Review Queue
+            </h5>
+            <div class="table-glass">
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover mb-0" id="flagged-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Species</th>
+                                <th>Description</th>
+                                <th>Reporter</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for s in flagged %}
+                            <tr>
+                                <td style="font-weight: 600;">#{{ s.id }}</td>
+                                <td>{{ s.species_guess }}</td>
+                                <td style="color: var(--text-muted); font-size: 0.88rem;">{{ s.description[:80] }}{% if s.description and s.description|length > 80 %}...{% endif %}</td>
+                                <td>{{ s.reporter.name }}</td>
+                                <td style="font-size: 0.85rem;">{{ s.created_at.strftime('%d %b %Y') }}</td>
+                                <td>
+                                    <div class="d-flex gap-2">
+                                        <form method="POST" action="{{ url_for('admin.approve_sighting', sighting_id=s.id) }}">
+                                            <button class="btn btn-sm" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);" title="Approve">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('admin.remove_sighting', sighting_id=s.id) }}">
+                                            <button class="btn btn-sm" style="background: rgba(244,63,94,0.15); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3);" title="Remove">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Sighting Status Bar Chart
+    const sCtx = document.getElementById('sightingChart').getContext('2d');
+    new Chart(sCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Pending', 'Claimed', 'Resolved', 'Flagged'],
+            datasets: [{
+                label: 'Sightings',
+                data: [{{ stats.pending_sightings }}, {{ stats.claimed_sightings }}, {{ stats.resolved_sightings }}, {{ stats.flagged_sightings }}],
+                backgroundColor: [
+                    'rgba(245, 158, 11, 0.7)',
+                    'rgba(6, 182, 212, 0.7)',
+                    'rgba(16, 185, 129, 0.7)',
+                    'rgba(244, 63, 94, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(245, 158, 11, 1)',
+                    'rgba(6, 182, 212, 1)',
+                    'rgba(16, 185, 129, 1)',
+                    'rgba(244, 63, 94, 1)'
+                ],
+                borderWidth: 1,
+                borderRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#94a3b8', stepSize: 1 },
+                    grid: { color: 'rgba(255,255,255,0.05)' }
+                },
+                x: {
+                    ticks: { color: '#94a3b8' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+
+    // Platform Overview Doughnut Chart
+    const oCtx = document.getElementById('overviewChart').getContext('2d');
+    new Chart(oCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Volunteers', 'Rescue Cases', 'Adoptions', 'NGOs/Vets'],
+            datasets: [{
+                data: [{{ stats.volunteers }}, {{ stats.total_rescues }}, {{ stats.total_adoptions }}, {{ stats.total_ngos }}],
+                backgroundColor: [
+                    'rgba(139, 92, 246, 0.8)',
+                    'rgba(16, 185, 129, 0.8)',
+                    'rgba(244, 63, 94, 0.8)',
+                    'rgba(245, 158, 11, 0.8)'
+                ],
+                borderColor: 'rgba(15, 15, 26, 0.8)',
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#94a3b8', padding: 15, usePointStyle: true }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

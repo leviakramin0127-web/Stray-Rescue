@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block title %}{{ profile_user.name }} — Profile — StrayRescue Meerut{% endblock %}
+
+{% block content %}
+<section style="padding: 3rem 0 4rem;">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Profile Card -->
+            <div class="col-lg-4 fade-in-up">
+                <div class="glass-card p-4 text-center" style="position: sticky; top: 100px;">
+                    <!-- Avatar -->
+                    <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--gradient-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; box-shadow: 0 8px 30px rgba(99,102,241,0.3);">
+                        <span style="font-size: 2.5rem; color: #fff; font-weight: 800;">
+                            {{ profile_user.name[0].upper() }}
+                        </span>
+                    </div>
+
+                    <h3 style="font-weight: 800; margin-bottom: 0.2rem;">{{ profile_user.name }}</h3>
+
+                    <!-- Role badge -->
+                    <span class="status-badge mb-3 d-inline-block" style="
+                        {% if profile_user.role == 'admin' %}
+                            background: rgba(244,63,94,0.15); color: var(--accent-rose); border: 1px solid rgba(244,63,94,0.3);
+                        {% elif profile_user.role == 'volunteer' %}
+                            background: rgba(16,185,129,0.15); color: var(--accent-emerald); border: 1px solid rgba(16,185,129,0.3);
+                        {% else %}
+                            background: rgba(139,92,246,0.15); color: var(--accent-purple); border: 1px solid rgba(139,92,246,0.3);
+                        {% endif %}
+                    ">{{ profile_user.role }}</span>
+
+                    <!-- Impact Badge -->
+                    {% if profile_user.badge %}
+                    <div class="mb-3">
+                        <div style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; border-radius: 20px;
+                            background: rgba({{ '245,158,11' if profile_user.badge.tier == 'gold' else ('148,163,184' if profile_user.badge.tier == 'silver' else '205,127,50') }},0.12);
+                            border: 1px solid rgba({{ '245,158,11' if profile_user.badge.tier == 'gold' else ('148,163,184' if profile_user.badge.tier == 'silver' else '205,127,50') }},0.3);">
+                            <i class="bi {{ profile_user.badge.icon }}" style="color: {{ profile_user.badge.color }}; font-size: 1.1rem;"></i>
+                            <span style="color: {{ profile_user.badge.color }}; font-weight: 700; font-size: 0.85rem;">{{ profile_user.badge.name }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <p style="color: var(--text-muted); font-size: 0.88rem;">
+                        <i class="bi bi-calendar3"></i> Joined {{ profile_user.created_at.strftime('%B %Y') }}
+                    </p>
+
+                    {% if profile_user.foster_profile %}
+                    <div class="mt-2 p-2" style="border-radius: 10px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.15);">
+                        <small style="color: var(--accent-emerald); font-weight: 600;">
+                            <i class="bi bi-house-heart-fill"></i> Registered Foster Parent
+                        </small>
+                    </div>
+                    {% endif %}
+
+                    <!-- Stats Grid -->
+                    <div class="row g-2 mt-3">
+                        <div class="col-6">
+                            <div style="padding: 0.8rem; border-radius: 12px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.12);">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-emerald);">{{ profile_user.rescue_count }}</div>
+                                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">Rescues</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div style="padding: 0.8rem; border-radius: 12px; background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.12);">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: #06b6d4;">{{ profile_user.claimed_count }}</div>
+                                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">Claimed</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div style="padding: 0.8rem; border-radius: 12px; background: rgba(244,63,94,0.08); border: 1px solid rgba(244,63,94,0.12);">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-rose);">{{ profile_user.total_fosters_count }}</div>
+                                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">Fostered</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div style="padding: 0.8rem; border-radius: 12px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.12);">
+                                <div style="font-size: 1.6rem; font-weight: 800; color: var(--accent-amber);">{{ profile_user.active_fosters_count }}</div>
+                                <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">Active Fosters</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Badge Progress -->
+                    {% if profile_user.role in ('volunteer', 'admin') %}
+                    <div class="mt-3 text-start" style="padding: 0.8rem; border-radius: 12px; background: rgba(139,92,246,0.06); border: 1px solid rgba(139,92,246,0.1);">
+                        <small style="font-weight: 600; color: var(--text-muted);">Badge Progress</small>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <div class="flex-grow-1" style="height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06);">
+                                {% set progress = [profile_user.rescue_count / 10 * 100, 100] | min %}
+                                <div style="width: {{ progress }}%; height: 100%; border-radius: 3px; background: var(--gradient-primary); transition: width 1s ease;"></div>
+                            </div>
+                            <small style="color: var(--text-muted); font-size: 0.7rem;">{{ profile_user.rescue_count }}/10</small>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small style="font-size: 0.65rem; color: {{ '#cd7f32' if profile_user.rescue_count >= 1 else 'var(--text-muted)' }};"><i class="bi bi-star-fill"></i> 1</small>
+                            <small style="font-size: 0.65rem; color: {{ '#94a3b8' if profile_user.rescue_count >= 5 else 'var(--text-muted)' }};"><i class="bi bi-shield-fill-check"></i> 5</small>
+                            <small style="font-size: 0.65rem; color: {{ '#f59e0b' if profile_user.rescue_count >= 10 else 'var(--text-muted)' }};"><i class="bi bi-trophy-fill"></i> 10</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Activity Feed -->
+            <div class="col-lg-8">
+                <!-- Active Fosters -->
+                {% if active_fosters %}
+                <div class="fade-in-up delay-1 mb-4">
+                    <h5 style="font-weight: 700; margin-bottom: 1rem;">
+                        <i class="bi bi-house-heart-fill" style="color: var(--accent-emerald);"></i> Currently Fostering
+                    </h5>
+                    <div class="row g-3">
+                        {% for fa in active_fosters %}
+                        <div class="col-md-6">
+                            <div class="glass-card p-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if fa.animal.photo_path %}
+                                    <img src="{{ url_for('static', filename=fa.animal.photo_path) }}" alt="{{ fa.animal.species }}"
+                                         style="width: 60px; height: 60px; border-radius: 12px; object-fit: cover;">
+                                    {% else %}
+                                    <div style="width: 60px; height: 60px; border-radius: 12px; background: rgba(16,185,129,0.12); display: flex; align-items: center; justify-content: center;">
+                                        <i class="bi bi-heart-pulse" style="font-size: 1.5rem; color: var(--accent-emerald);"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="mb-0" style="font-weight: 700;">{{ fa.animal.species }}{% if fa.animal.breed %} — {{ fa.animal.breed }}{% endif %}</h6>
+                                        <small style="color: var(--text-muted);">Since {{ fa.start_date.strftime('%d %b %Y') }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Rescue Timeline -->
+                <div class="fade-in-up delay-2">
+                    <h5 style="font-weight: 700; margin-bottom: 1rem;">
+                        <i class="bi bi-clock-history" style="color: var(--accent-purple);"></i> Rescue Timeline
+                    </h5>
+                    {% if resolved_cases %}
+                    <div class="position-relative" style="padding-left: 2rem;">
+                        <!-- Timeline line -->
+                        <div style="position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: rgba(139,92,246,0.2);"></div>
+
+                        {% for rc in resolved_cases %}
+                        <div class="mb-3 position-relative">
+                            <!-- Timeline dot -->
+                            <div style="position: absolute; left: -1.65rem; top: 0.3rem; width: 12px; height: 12px; border-radius: 50%; background: var(--accent-emerald); border: 2px solid var(--surface);"></div>
+                            <div class="glass-card p-3" style="border-left: 3px solid var(--accent-emerald);">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1" style="font-weight: 700;">
+                                            Rescued: {{ rc.sighting.species_guess }}
+                                        </h6>
+                                        <p class="mb-0" style="color: var(--text-muted); font-size: 0.85rem;">
+                                            {{ rc.action_taken or 'Resolved by volunteer' }}
+                                        </p>
+                                    </div>
+                                    <small style="color: var(--text-muted); white-space: nowrap;">
+                                        {{ rc.date_closed.strftime('%d %b %Y') }}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="glass-card p-4 text-center">
+                        <i class="bi bi-clock" style="font-size: 2rem; color: var(--text-muted);"></i>
+                        <p class="mt-2 mb-0" style="color: var(--text-muted);">No rescue cases resolved yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Completed Fosters -->
+                {% if completed_fosters %}
+                <div class="fade-in-up delay-3 mt-4">
+                    <h5 style="font-weight: 700; margin-bottom: 1rem;">
+                        <i class="bi bi-check-circle-fill" style="color: var(--accent-amber);"></i> Completed Fosters
+                    </h5>
+                    <div class="table-glass">
+                        <div class="table-responsive">
+                            <table class="table table-dark mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Animal</th>
+                                        <th>Duration</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for fa in completed_fosters %}
+                                    <tr>
+                                        <td style="font-weight: 600;">{{ fa.animal.species }}{% if fa.animal.breed %} — {{ fa.animal.breed }}{% endif %}</td>
+                                        <td style="color: var(--text-muted); font-size: 0.88rem;">
+                                            {{ fa.start_date.strftime('%d %b') }} — {{ fa.end_date.strftime('%d %b %Y') if fa.end_date else 'Ongoing' }}
+                                        </td>
+                                        <td><span class="status-badge badge-resolved">Found Home</span></td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

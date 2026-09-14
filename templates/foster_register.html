@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Register as Foster Parent — StrayRescue Meerut{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="fade-in-up">
+            <h1><i class="bi bi-plus-heart-fill" style="color: var(--accent-emerald);"></i> Become a Foster Parent</h1>
+            <p class="lead">Open your home to a stray animal while they wait for their forever family.</p>
+        </div>
+    </div>
+</section>
+
+<section style="padding: 0 0 4rem;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 fade-in-up delay-1">
+                <!-- Info Banner -->
+                <div class="glass-card p-4 mb-4" style="background: linear-gradient(135deg, rgba(16,185,129,0.08), rgba(6,182,212,0.06)); border-color: rgba(16,185,129,0.15);">
+                    <h6 style="font-weight: 700; color: var(--accent-emerald); margin-bottom: 0.5rem;">
+                        <i class="bi bi-info-circle-fill"></i> What is Fostering?
+                    </h6>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0;">
+                        Fostering means giving a rescued animal a temporary home while NGOs and shelters work to find them a permanent family.
+                        You provide food, shelter, and love — and when a permanent home is found, the animal moves on. It's a beautiful way to
+                        help without the full commitment of adoption. NGOs often have limited space, so foster parents are critical.
+                    </p>
+                </div>
+
+                <div class="glass-card p-4 p-md-5">
+                    <form method="POST" action="{{ url_for('foster.register') }}" id="foster-register-form">
+                        <div class="mb-4">
+                            <label class="form-label" style="font-weight: 600;">What animals can you foster? *</label>
+                            <div class="d-flex flex-wrap gap-3 mt-1">
+                                {% set types = [('dog', 'bi-emoji-heart-eyes', 'Dogs'), ('cat', 'bi-emoji-smile', 'Cats'), ('bird', 'bi-feather', 'Birds'), ('other', 'bi-three-dots', 'Other Small Animals')] %}
+                                {% for value, icon, label in types %}
+                                <div class="form-check" style="padding: 0;">
+                                    <input type="checkbox" class="btn-check" id="type-{{ value }}" name="animal_types" value="{{ value }}">
+                                    <label class="btn btn-outline-glass btn-sm" for="type-{{ value }}" style="border-radius: 10px; padding: 0.5rem 1rem;">
+                                        <i class="bi {{ icon }}"></i> {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="max_animals">How many animals can you foster at a time? *</label>
+                            <select class="form-select" id="max_animals" name="max_animals" required>
+                                <option value="1">1 animal</option>
+                                <option value="2">2 animals</option>
+                                <option value="3">3 animals</option>
+                                <option value="4">4 animals</option>
+                                <option value="5">5 or more</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check" style="padding-left: 0;">
+                                <div class="glass-card p-3 d-flex align-items-center gap-3" style="cursor: pointer;" onclick="document.getElementById('outdoor').click()">
+                                    <input type="checkbox" id="outdoor" name="has_outdoor_space" class="form-check-input" style="width: 20px; height: 20px; margin: 0;">
+                                    <div>
+                                        <label class="form-check-label" for="outdoor" style="font-weight: 600; cursor: pointer;">
+                                            <i class="bi bi-tree-fill" style="color: var(--accent-emerald);"></i> I have outdoor space
+                                        </label>
+                                        <br><small style="color: var(--text-muted);">Garden, yard, or terrace where animals can play</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="experience">Tell us about your experience (optional)</label>
+                            <textarea class="form-control" id="experience" name="experience_notes" rows="3"
+                                placeholder="Have you cared for animals before? Any relevant experience..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-gradient w-100 py-2" id="foster-submit">
+                            <i class="bi bi-heart-fill"></i> Register as Foster Parent
+                        </button>
+
+                        <p class="text-center mt-3 mb-0" style="font-size: 0.82rem; color: var(--text-muted);">
+                            <i class="bi bi-shield-check"></i> Your profile will be visible to NGOs and admins who assign animals for fostering.
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

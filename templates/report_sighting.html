@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Report a Sighting — StrayRescue Meerut{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="fade-in-up">
+            <h1><i class="bi bi-megaphone-fill" style="color: var(--accent-amber);"></i> Report a Sighting</h1>
+            <p class="lead">Spotted a stray animal in distress? Fill in the details below and we'll notify nearby volunteers.</p>
+        </div>
+    </div>
+</section>
+
+<section style="padding: 0 0 4rem;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 fade-in-up delay-1">
+                <div class="glass-card p-4 p-md-5">
+                    <form method="POST" action="{{ url_for('sightings.report_sighting') }}" enctype="multipart/form-data" id="report-form">
+
+                        <!-- Location Status -->
+                        <div class="mb-4 p-3" style="border-radius: 12px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);" id="location-status">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="spinner-border spinner-border-sm" style="color: var(--accent-amber);" role="status" id="loc-spinner">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <span style="color: var(--accent-amber); font-weight: 500; font-size: 0.9rem;" id="loc-text">
+                                    Acquiring your location...
+                                </span>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="latitude" id="latitude">
+                        <input type="hidden" name="longitude" id="longitude">
+
+                        <div class="mb-3">
+                            <label class="form-label" for="species_guess">Animal Type *</label>
+                            <select class="form-select" id="species_guess" name="species_guess" required>
+                                <option value="">Select type...</option>
+                                <option value="Dog">Dog</option>
+                                <option value="Cat">Cat</option>
+                                <option value="Bird">Bird</option>
+                                <option value="Cow">Cow</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label" for="description">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4"
+                                placeholder="Describe the animal's condition, exact location landmarks, urgency level..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="photo">Photo (optional)</label>
+                            <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                            <div id="photo-preview" class="mt-2" style="display:none;">
+                                <img id="preview-img" src="" alt="Preview" style="max-height: 200px; border-radius: 12px; border: 1px solid var(--glass-border);">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-gradient w-100 py-2" id="report-submit">
+                            <i class="bi bi-send-fill"></i> Submit Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Geolocation capture
+    (function() {
+        const latField = document.getElementById('latitude');
+        const lonField = document.getElementById('longitude');
+        const locText = document.getElementById('loc-text');
+        const locSpinner = document.getElementById('loc-spinner');
+        const locStatus = document.getElementById('location-status');
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    latField.value = pos.coords.latitude;
+                    lonField.value = pos.coords.longitude;
+                    locText.textContent = `Location captured: ${pos.coords.latitude.toFixed(4)}°N, ${pos.coords.longitude.toFixed(4)}°E`;
+                    locSpinner.style.display = 'none';
+                    locStatus.style.background = 'rgba(16,185,129,0.08)';
+                    locStatus.style.borderColor = 'rgba(16,185,129,0.2)';
+                    locText.style.color = '#10b981';
+                },
+                function(err) {
+                    locText.textContent = 'Location access denied. Please enable GPS and refresh.';
+                    locSpinner.style.display = 'none';
+                    locStatus.style.background = 'rgba(244,63,94,0.08)';
+                    locStatus.style.borderColor = 'rgba(244,63,94,0.2)';
+                    locText.style.color = '#f43f5e';
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            locText.textContent = 'Geolocation not supported by your browser.';
+            locSpinner.style.display = 'none';
+        }
+    })();
+
+    // Photo preview
+    document.getElementById('photo').addEventListener('change', function(e) {
+        const preview = document.getElementById('photo-preview');
+        const img = document.getElementById('preview-img');
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                img.src = ev.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(this.files[0]);
+        } else {
+            preview.style.display = 'none';
+        }
+    });
+</script>
+{% endblock %}

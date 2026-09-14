@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Nearby NGOs & Vets — StrayRescue Meerut{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="fade-in-up">
+            <h1><i class="bi bi-geo-alt-fill" style="color: var(--accent-emerald);"></i> Nearby NGOs &amp; Vets</h1>
+            <p class="lead">Find the nearest animal welfare organizations and veterinary clinics in Meerut.</p>
+        </div>
+    </div>
+</section>
+
+<section style="padding: 0 0 4rem;">
+    <div class="container">
+        <!-- Location auto-detect prompt -->
+        <div class="glass-card p-3 mb-4 fade-in-up delay-1" id="loc-detect-card">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-2">
+                    <div id="ngo-loc-spinner" class="spinner-border spinner-border-sm" style="color: var(--accent-emerald);" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span id="ngo-loc-text" style="color: var(--text-muted); font-size: 0.92rem;">Detecting your location to sort by distance...</span>
+                </div>
+                <button class="btn btn-sm btn-outline-glass" id="btn-retry-loc" style="display:none;" onclick="detectLocation()">
+                    <i class="bi bi-arrow-clockwise"></i> Retry
+                </button>
+            </div>
+        </div>
+
+        {% if results %}
+        <div class="table-glass fade-in-up delay-2">
+            <div class="table-responsive">
+                <table class="table table-dark table-hover mb-0" id="ngo-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Address</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            {% if user_lat is not none %}
+                            <th>Distance</th>
+                            {% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in results %}
+                        <tr>
+                            <td style="font-weight: 600; color: var(--accent-purple);">{{ loop.index }}</td>
+                            <td>
+                                <span style="font-weight: 600;">{{ r.name }}</span>
+                                {% if r.verified %}
+                                <i class="bi bi-patch-check-fill" style="color: var(--accent-emerald); margin-left: 4px;" title="Verified"></i>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if r.type == 'ngo' %}
+                                <span class="status-badge" style="background: rgba(139,92,246,0.15); color: var(--accent-purple); border: 1px solid rgba(139,92,246,0.3);">NGO</span>
+                                {% else %}
+                                <span class="status-badge" style="background: rgba(6,182,212,0.15); color: #06b6d4; border: 1px solid rgba(6,182,212,0.3);">Vet</span>
+                                {% endif %}
+                            </td>
+                            <td style="color: var(--text-muted); font-size: 0.88rem;">{{ r.address or '—' }}</td>
+                            <td>
+                                {% if r.phone %}
+                                <a href="tel:{{ r.phone }}" style="color: var(--accent-amber); text-decoration: none; font-weight: 500;">
+                                    <i class="bi bi-telephone"></i> {{ r.phone }}
+                                </a>
+                                {% else %}—{% endif %}
+                            </td>
+                            <td>
+                                {% if r.accepting_cases %}
+                                <span class="status-badge badge-resolved">Accepting</span>
+                                {% else %}
+                                <span class="status-badge badge-flagged">Full</span>
+                                {% endif %}
+                            </td>
+                            {% if user_lat is not none %}
+                            <td style="font-weight: 700; color: var(--accent-amber);">
+                                {{ r.distance_km }} km
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="glass-card p-5 text-center fade-in-up delay-2">
+            <i class="bi bi-building" style="font-size: 3rem; color: var(--text-muted);"></i>
+            <h5 class="mt-3" style="font-weight: 700;">No NGOs/Vets Found</h5>
+            <p style="color: var(--text-muted);">No organizations have been registered yet. Check back later.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function detectLocation() {
+        const text = document.getElementById('ngo-loc-text');
+        const spinner = document.getElementById('ngo-loc-spinner');
+        const retryBtn = document.getElementById('btn-retry-loc');
+
+        spinner.style.display = '';
+        retryBtn.style.display = 'none';
+        text.textContent = 'Detecting your location...';
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    const lat = pos.coords.latitude;
+                    const lon = pos.coords.longitude;
+                    text.textContent = 'Location detected! Sorting by distance...';
+                    // Redirect with coordinates
+                    window.location.href = `{{ url_for('ngo.nearest') }}?lat=${lat}&lon=${lon}`;
+                },
+                function(err) {
+                    spinner.style.display = 'none';
+                    retryBtn.style.display = '';
+                    text.textContent = 'Location access denied. Showing all results unsorted.';
+                    text.style.color = '#f43f5e';
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            spinner.style.display = 'none';
+            text.textContent = 'Geolocation not supported by your browser.';
+        }
+    }
+
+    // Auto-detect on load if no coordinates provided
+    {% if user_lat is none %}
+    detectLocation();
+    {% else %}
+    document.getElementById('ngo-loc-spinner').style.display = 'none';
+    document.getElementById('ngo-loc-text').textContent = 'Sorted by distance from your location ({{ "%.4f"|format(user_lat) }}°N, {{ "%.4f"|format(user_lon) }}°E)';
+    document.getElementById('ngo-loc-text').style.color = '#10b981';
+    {% endif %}
+</script>
+{% endblock %}

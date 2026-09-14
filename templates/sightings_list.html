@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}All Sightings — StrayRescue Meerut{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 fade-in-up">
+            <div>
+                <h1><i class="bi bi-eye-fill" style="color: var(--accent-amber);"></i> Sighting Reports</h1>
+                <p class="lead mb-0">All reported stray animal sightings in Meerut.</p>
+            </div>
+            <a href="{{ url_for('sightings.report_sighting') }}" class="btn btn-primary-gradient" id="btn-new-report">
+                <i class="bi bi-plus-lg"></i> New Report
+            </a>
+        </div>
+    </div>
+</section>
+
+<section style="padding: 0 0 4rem;">
+    <div class="container">
+        <!-- Filters -->
+        <div class="d-flex flex-wrap gap-2 mb-4 fade-in-up delay-1">
+            {% set filters = [('all', 'All'), ('pending', 'Pending'), ('claimed', 'Claimed'), ('resolved', 'Resolved'), ('flagged', 'Flagged')] %}
+            {% for value, label in filters %}
+            <a href="{{ url_for('sightings.list_sightings', status=value) }}"
+               class="btn btn-sm {% if current_filter == value %}btn-primary-gradient{% else %}btn-outline-glass{% endif %}"
+               id="filter-{{ value }}">
+                {{ label }}
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if sightings %}
+        <div class="row g-4">
+            {% for s in sightings %}
+            <div class="col-md-6 col-lg-4 fade-in-up delay-{{ loop.index0 % 4 + 1 }}">
+                <div class="glass-card h-100 overflow-hidden">
+                    {% if s.photo_path %}
+                    <div style="height: 200px; overflow: hidden;">
+                        <img src="{{ url_for('static', filename=s.photo_path) }}" alt="Sighting photo"
+                             style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    {% else %}
+                    <div style="height: 120px; background: rgba(139,92,246,0.08); display: flex; align-items: center; justify-content: center;">
+                        <i class="bi bi-camera" style="font-size: 2.5rem; color: var(--text-muted);"></i>
+                    </div>
+                    {% endif %}
+
+                    <div class="p-3">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="mb-0" style="font-weight: 700;">
+                                <i class="bi bi-tag-fill" style="color: var(--accent-purple);"></i>
+                                {{ s.species_guess }}
+                            </h6>
+                            <span class="status-badge badge-{{ s.status }}">{{ s.status }}</span>
+                        </div>
+
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                            {{ s.description[:120] }}{% if s.description and s.description|length > 120 %}...{% endif %}
+                        </p>
+
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">
+                            <i class="bi bi-geo-alt"></i> {{ "%.4f"|format(s.latitude) }}, {{ "%.4f"|format(s.longitude) }}<br>
+                            <i class="bi bi-clock"></i> {{ s.created_at.strftime('%d %b %Y, %I:%M %p') }}<br>
+                            <i class="bi bi-person"></i> {{ s.reporter.name }}
+                        </div>
+
+                        {% if current_user.is_authenticated %}
+                        <div class="d-flex gap-2 mt-3">
+                            {% if s.status == 'pending' and current_user.role in ('volunteer', 'admin') %}
+                            <form method="POST" action="{{ url_for('sightings.claim_sighting', sighting_id=s.id) }}" class="flex-grow-1">
+                                <button type="submit" class="btn btn-sm w-100" style="background: rgba(6,182,212,0.15); color: #06b6d4; border: 1px solid rgba(6,182,212,0.3);">
+                                    <i class="bi bi-hand-index"></i> Claim
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            {% if s.status == 'claimed' and s.rescue_case and s.rescue_case.volunteer_id == current_user.id %}
+                            <form method="POST" action="{{ url_for('sightings.resolve_sighting', sighting_id=s.id) }}" class="flex-grow-1">
+                                <input type="hidden" name="action_taken" value="Resolved by volunteer">
+                                <button type="submit" class="btn btn-sm w-100" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3);">
+                                    <i class="bi bi-check-circle"></i> Resolve
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            {% if s.status not in ('flagged', 'resolved') %}
+                            <form method="POST" action="{{ url_for('sightings.flag_sighting', sighting_id=s.id) }}">
+                                <button type="submit" class="btn btn-sm" style="background: rgba(244,63,94,0.1); color: #f43f5e; border: 1px solid rgba(244,63,94,0.2);" title="Flag as spam">
+                                    <i class="bi bi-flag"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass-card p-5 text-center fade-in-up delay-1">
+            <i class="bi bi-binoculars" style="font-size: 3rem; color: var(--text-muted);"></i>
+            <h5 class="mt-3" style="font-weight: 700;">No Sightings Found</h5>
+            <p style="color: var(--text-muted);">
+                {% if current_filter != 'all' %}No sightings with status "{{ current_filter }}".{% else %}Be the first to report a stray animal sighting!{% endif %}
+            </p>
+            <a href="{{ url_for('sightings.report_sighting') }}" class="btn btn-primary-gradient">
+                <i class="bi bi-megaphone"></i> Report Now
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

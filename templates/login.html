@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Log In — StrayRescue Meerut{% endblock %}
+
+{% block content %}
+<section style="padding: 4rem 0;">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-5 fade-in-up">
+                <div class="glass-card p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <div style="width: 64px; height: 64px; border-radius: 16px; background: var(--gradient-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                            <i class="bi bi-box-arrow-in-right" style="font-size: 1.6rem; color: #fff;"></i>
+                        </div>
+                        <h2 style="font-weight: 800; letter-spacing: -0.5px;">Welcome Back</h2>
+                        <p style="color: var(--text-muted); font-size: 0.92rem;">Log in to your StrayRescue account.</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('auth.login') }}" id="login-form">
+                        <div class="mb-3">
+                            <label class="form-label" for="login-email">Email</label>
+                            <input type="email" class="form-control" id="login-email" name="email" required placeholder="you@example.com">
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label" for="login-password">Password</label>
+                            <input type="password" class="form-control" id="login-password" name="password" required placeholder="Enter your password">
+                        </div>
+
+                        <button type="submit" class="btn btn-primary-gradient w-100 py-2" id="login-submit">
+                            <i class="bi bi-box-arrow-in-right"></i> Log In
+                        </button>
+                    </form>
+
+                    <p class="text-center mt-3 mb-0" style="color: var(--text-muted); font-size: 0.9rem;">
+                        Don't have an account?
+                        <a href="{{ url_for('auth.signup') }}" style="color: var(--accent-purple); font-weight: 600; text-decoration: none;">Sign up</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
