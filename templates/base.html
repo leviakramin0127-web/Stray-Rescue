@@ -329,8 +329,22 @@
 
         /* ── Responsive ── */
         @media (max-width: 768px) {
-            .page-header h1 { font-size: 1.6rem; }
+            h1 { font-size: 2.2rem !important; line-height: 1.2 !important; }
+            h2 { font-size: 1.8rem !important; }
+            section { padding: 2.5rem 0 !important; }
+            .page-header { padding: 2rem 0 1.5rem !important; }
             .glass-card { margin-bottom: 1rem; }
+            .btn-lg { width: 100%; margin-bottom: 0.5rem; }
+            .d-flex.gap-3.flex-wrap { flex-direction: column; width: 100%; gap: 0.5rem !important; }
+            .d-flex.gap-3.flex-wrap .btn { width: 100%; margin-bottom: 0; }
+            .navbar-collapse {
+                background: rgba(30, 30, 46, 0.98);
+                border-radius: 12px;
+                padding: 1rem;
+                margin-top: 10px;
+                border: 1px solid var(--glass-border);
+            }
+            .table-responsive { border: 0; }
         }
     </style>
     {% block extra_css %}{% endblock %}
