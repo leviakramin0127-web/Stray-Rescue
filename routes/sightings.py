@@ -32,7 +32,6 @@ def list_sightings():
 
 
 @sightings_bp.route('/report', methods=['GET', 'POST'])
-@login_required
 def report_sighting():
     if request.method == 'POST':
         species = request.form.get('species_guess', '').strip()
@@ -55,8 +54,10 @@ def report_sighting():
         if 'photo' in request.files:
             photo_path = save_upload(request.files['photo'])
 
+        reporter_id = current_user.id if current_user.is_authenticated else None
+
         sighting = Sighting(
-            reported_by=current_user.id,
+            reported_by=reporter_id,
             species_guess=species,
             description=description,
             photo_path=photo_path,

@@ -115,7 +115,7 @@ class Sighting(db.Model):
     __tablename__ = 'sightings'
 
     id = db.Column(db.Integer, primary_key=True)
-    reported_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    reported_by = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     species_guess = db.Column(db.String(50), nullable=False)
     description = db.Column(db.Text)
     photo_path = db.Column(db.String(300))
