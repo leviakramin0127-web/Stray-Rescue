@@ -17,14 +17,10 @@ import os
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import create_app
 from models import db, User, NGOVet, Animal, Adoption
 from datetime import datetime, timezone
 
-app = create_app()
-
-
-def seed():
+def seed(app):
     with app.app_context():
         print("[SEED] Seeding database...")
 
@@ -239,4 +235,6 @@ def seed():
 
 
 if __name__ == '__main__':
-    seed()
+    from app import create_app
+    app = create_app()
+    seed(app)

@@ -80,9 +80,16 @@ def create_app():
 
         return render_template('index.html', stats=stats, top_volunteers=top_volunteers)
 
-    # Create tables
+    # Create tables and seed data if empty
     with app.app_context():
         db.create_all()
+        from models import User
+        if User.query.count() == 0:
+            try:
+                from seed_data import seed
+                seed(app)
+            except Exception as e:
+                print(f"Error seeding data: {e}")
 
     return app
 
