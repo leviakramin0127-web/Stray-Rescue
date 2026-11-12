@@ -1,5 +1,5 @@
 import os
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, send_from_directory
 from flask_login import LoginManager
 from config import Config
 from models import db, User
@@ -79,6 +79,12 @@ def create_app():
         top_volunteers = top_volunteers[:3]
 
         return render_template('index.html', stats=stats, top_volunteers=top_volunteers)
+
+    # Serve service worker from root for PWA scope
+    @app.route('/sw.js')
+    def service_worker():
+        return send_from_directory(app.static_folder, 'sw.js',
+                                   mimetype='application/javascript')
 
     # Create tables and seed data if empty
     with app.app_context():
