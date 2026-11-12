@@ -17,8 +17,8 @@ import os
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from models import db, User, NGOVet, Animal, Adoption
-from datetime import datetime, timezone
+from models import db, User, NGOVet, Animal, Adoption, Sighting
+from datetime import datetime, timezone, timedelta
 
 def seed(app):
     with app.app_context():
@@ -227,6 +227,87 @@ def seed(app):
             print(f"  [OK] {len(animals_data)} animals + adoption listings added")
         else:
             print(f"  [SKIP] Animals already seeded ({Animal.query.count()} entries)")
+
+        # ── Demo Sightings ──
+        if Sighting.query.count() == 0:
+            admin = User.query.filter_by(email='admin@strayrescue.in').first()
+            volunteer = User.query.filter_by(email='volunteer@strayrescue.in').first()
+            public_user = User.query.filter_by(email='user@strayrescue.in').first()
+            now = datetime.now(timezone.utc)
+
+            sightings_data = [
+                Sighting(
+                    reported_by=public_user.id if public_user else None,
+                    species_guess='Dog',
+                    description='Injured stray dog limping near Shiv Chowk. Appears to have a wounded front leg. Needs urgent vet attention.',
+                    latitude=28.9870, longitude=77.7060,
+                    status='pending',
+                    created_at=now - timedelta(hours=2)
+                ),
+                Sighting(
+                    reported_by=None,
+                    species_guess='Cat',
+                    description='Small kitten stuck on rooftop near Begumpul market. Meowing loudly, appears hungry and scared.',
+                    latitude=28.9790, longitude=77.7010,
+                    status='pending',
+                    created_at=now - timedelta(hours=5)
+                ),
+                Sighting(
+                    reported_by=volunteer.id if volunteer else None,
+                    species_guess='Dog',
+                    description='Pack of 4 stray dogs near Abu Lane. One female appears pregnant. They are friendly but need food and shelter.',
+                    latitude=28.9920, longitude=77.7100,
+                    status='claimed',
+                    created_at=now - timedelta(days=1)
+                ),
+                Sighting(
+                    reported_by=public_user.id if public_user else None,
+                    species_guess='Cow',
+                    description='Injured cow lying on the road near Hapur Road crossing. Hit by vehicle. Cannot stand up. URGENT!',
+                    latitude=28.9750, longitude=77.7250,
+                    status='pending',
+                    created_at=now - timedelta(hours=1)
+                ),
+                Sighting(
+                    reported_by=None,
+                    species_guess='Dog',
+                    description='Friendly stray puppy spotted near Subhash Park, Meerut Cantt. Very thin, needs food and care.',
+                    latitude=29.0010, longitude=77.7150,
+                    status='resolved',
+                    created_at=now - timedelta(days=3)
+                ),
+                Sighting(
+                    reported_by=admin.id if admin else None,
+                    species_guess='Bird',
+                    description='Injured pigeon found near Clock Tower. Wing appears broken. Placed in a box temporarily.',
+                    latitude=28.9830, longitude=77.7050,
+                    status='resolved',
+                    created_at=now - timedelta(days=2)
+                ),
+                Sighting(
+                    reported_by=None,
+                    species_guess='Cat',
+                    description='Mother cat with 3 kittens under a parked car near Pallavpuram Phase 2. Need rescue before monsoon.',
+                    latitude=28.9680, longitude=77.7200,
+                    status='pending',
+                    created_at=now - timedelta(hours=8)
+                ),
+                Sighting(
+                    reported_by=public_user.id if public_user else None,
+                    species_guess='Dog',
+                    description='Aggressive stray dog near Ganga Nagar colony entrance. Barking at passersby. Could be in pain. Approach with caution.',
+                    latitude=28.9950, longitude=77.6900,
+                    status='flagged',
+                    created_at=now - timedelta(days=1, hours=6)
+                ),
+            ]
+
+            for s in sightings_data:
+                db.session.add(s)
+            db.session.commit()
+            print(f"  [OK] {len(sightings_data)} demo sightings added")
+        else:
+            print(f"  [SKIP] Sightings already seeded ({Sighting.query.count()} entries)")
 
         print("\n[DONE] Seed complete! You can now run the app with: python app.py")
         print("   Admin login: admin@strayrescue.in / admin123")

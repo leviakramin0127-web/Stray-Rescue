@@ -62,8 +62,20 @@
                         <div style="font-size: 0.8rem; color: var(--text-muted);">
                             <i class="bi bi-geo-alt"></i> {{ "%.4f"|format(s.latitude) }}, {{ "%.4f"|format(s.longitude) }}<br>
                             <i class="bi bi-clock"></i> {{ s.created_at.strftime('%d %b %Y, %I:%M %p') }}<br>
+                            {% if s.reporter %}
                             <i class="bi bi-person"></i> {{ s.reporter.name }}
+                            {% else %}
+                            <i class="bi bi-person"></i> Anonymous
+                            {% endif %}
                         </div>
+
+                        <!-- Navigate to location -->
+                        <a href="https://www.google.com/maps/dir/?api=1&destination={{ s.latitude }},{{ s.longitude }}"
+                           target="_blank" rel="noopener"
+                           class="btn btn-sm w-100 mt-3"
+                           style="background: #ede9fe; color: #7c3aed; border: 1px solid #c4b5fd; font-weight: 600;">
+                            <i class="bi bi-compass"></i> Navigate to Location
+                        </a>
 
                         {% if current_user.is_authenticated %}
                         <div class="d-flex gap-2 mt-3">

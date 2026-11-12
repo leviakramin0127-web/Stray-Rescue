@@ -5,7 +5,7 @@
 <section class="page-header">
     <div class="container">
         <div class="fade-in-up">
-            <h1><i class="bi bi-megaphone-fill" style="color: var(--accent-amber);"></i> Report a Sighting</h1>
+            <h1><i class="bi bi-megaphone-fill" style="color: #f59e0b;"></i> Report a Sighting</h1>
             <p class="lead">Spotted a stray animal in distress? Fill in the details below and we'll notify nearby volunteers.</p>
         </div>
     </div>
@@ -19,15 +19,23 @@
                     <form method="POST" action="{{ url_for('sightings.report_sighting') }}" enctype="multipart/form-data" id="report-form">
 
                         <!-- Location Status -->
-                        <div class="mb-4 p-3" style="border-radius: 12px; background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);" id="location-status">
+                        <div class="mb-3 p-3" style="border-radius: 12px; background: #fffbeb; border: 1px solid #fde68a;" id="location-status">
                             <div class="d-flex align-items-center gap-2">
-                                <div class="spinner-border spinner-border-sm" style="color: var(--accent-amber);" role="status" id="loc-spinner">
+                                <div class="spinner-border spinner-border-sm" style="color: #f59e0b;" role="status" id="loc-spinner">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
-                                <span style="color: var(--accent-amber); font-weight: 500; font-size: 0.9rem;" id="loc-text">
+                                <span style="color: #b45309; font-weight: 500; font-size: 0.9rem;" id="loc-text">
                                     Acquiring your location...
                                 </span>
                             </div>
+                        </div>
+
+                        <!-- Manual location fallback (hidden by default, shown if GPS fails) -->
+                        <div class="mb-3" id="manual-location" style="display:none;">
+                            <label class="form-label" for="location_text"><i class="bi bi-geo-alt"></i> Enter Location Manually *</label>
+                            <input type="text" class="form-control" id="location_text" name="location_text"
+                                placeholder="e.g. Near Shiv Chowk, Meerut" autocomplete="off">
+                            <div class="form-text" style="font-size: 0.78rem;">Describe the location as precisely as possible (landmarks, road name, etc.)</div>
                         </div>
 
                         <input type="hidden" name="latitude" id="latitude">
@@ -55,7 +63,7 @@
                             <label class="form-label" for="photo">Photo (optional)</label>
                             <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
                             <div id="photo-preview" class="mt-2" style="display:none;">
-                                <img id="preview-img" src="" alt="Preview" style="max-height: 200px; border-radius: 12px; border: 1px solid var(--glass-border);">
+                                <img id="preview-img" src="" alt="Preview" style="max-height: 200px; border-radius: 12px; border: 1px solid var(--border);">
                             </div>
                         </div>
 
@@ -72,39 +80,48 @@
 
 {% block extra_js %}
 <script>
-    // Geolocation capture
-    (function() {
-        const latField = document.getElementById('latitude');
-        const lonField = document.getElementById('longitude');
-        const locText = document.getElementById('loc-text');
-        const locSpinner = document.getElementById('loc-spinner');
-        const locStatus = document.getElementById('location-status');
+    // Default Meerut center coordinates
+    const MEERUT_LAT = 28.9845;
+    const MEERUT_LNG = 77.7064;
 
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(pos) {
-                    latField.value = pos.coords.latitude;
-                    lonField.value = pos.coords.longitude;
-                    locText.textContent = `Location captured: ${pos.coords.latitude.toFixed(4)}°N, ${pos.coords.longitude.toFixed(4)}°E`;
-                    locSpinner.style.display = 'none';
-                    locStatus.style.background = 'rgba(16,185,129,0.08)';
-                    locStatus.style.borderColor = 'rgba(16,185,129,0.2)';
-                    locText.style.color = '#10b981';
-                },
-                function(err) {
-                    locText.textContent = 'Location access denied. Please enable GPS and refresh.';
-                    locSpinner.style.display = 'none';
-                    locStatus.style.background = 'rgba(244,63,94,0.08)';
-                    locStatus.style.borderColor = 'rgba(244,63,94,0.2)';
-                    locText.style.color = '#f43f5e';
-                },
-                { enableHighAccuracy: true, timeout: 10000 }
-            );
-        } else {
-            locText.textContent = 'Geolocation not supported by your browser.';
-            locSpinner.style.display = 'none';
-        }
-    })();
+    const latField = document.getElementById('latitude');
+    const lonField = document.getElementById('longitude');
+    const locText = document.getElementById('loc-text');
+    const locSpinner = document.getElementById('loc-spinner');
+    const locStatus = document.getElementById('location-status');
+    const manualLoc = document.getElementById('manual-location');
+
+    function showSuccess(lat, lng) {
+        latField.value = lat;
+        lonField.value = lng;
+        locText.textContent = 'Location captured: ' + lat.toFixed(4) + '°N, ' + lng.toFixed(4) + '°E';
+        locSpinner.style.display = 'none';
+        locStatus.style.background = '#d1fae5';
+        locStatus.style.borderColor = '#a7f3d0';
+        locText.style.color = '#047857';
+    }
+
+    function showFallback() {
+        // Set default Meerut coordinates so the form still works
+        latField.value = MEERUT_LAT;
+        lonField.value = MEERUT_LNG;
+        locText.innerHTML = '<i class="bi bi-info-circle"></i> GPS unavailable — using Meerut default. You can describe the exact location below.';
+        locSpinner.style.display = 'none';
+        locStatus.style.background = '#ede9fe';
+        locStatus.style.borderColor = '#c4b5fd';
+        locText.style.color = '#6d28d9';
+        manualLoc.style.display = 'block';
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(pos) { showSuccess(pos.coords.latitude, pos.coords.longitude); },
+            function(err) { showFallback(); },
+            { enableHighAccuracy: true, timeout: 8000 }
+        );
+    } else {
+        showFallback();
+    }
 
     // Photo preview
     document.getElementById('photo').addEventListener('change', function(e) {
