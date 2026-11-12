@@ -125,7 +125,6 @@ class Sighting(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     # Relationships
-    reporter = db.relationship('User', backref='sightings', foreign_keys=[reported_by])
     rescue_case = db.relationship('RescueCase', backref='sighting', uselist=False)
 
     def __repr__(self):
