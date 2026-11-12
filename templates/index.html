@@ -1,200 +1,337 @@
 {% extends "base.html" %}
 {% block title %}StrayRescue Meerut — Help Rescue Stray Animals{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* ── Home-specific styles ── */
+    .home-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem 0 0.5rem;
+    }
+    .home-header .brand { font-weight: 800; font-size: 1.2rem; color: var(--text); }
+    .home-header .brand i { color: var(--primary); }
+    .home-location {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .home-location i { color: var(--primary); }
+
+    /* Alert banner */
+    .alert-banner {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        margin: 1rem 0;
+        font-size: 0.85rem;
+        color: #92400e;
+    }
+    .alert-banner strong { color: #b45309; }
+
+    /* Quick report */
+    .quick-report {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.85rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        color: var(--text-muted);
+    }
+    .quick-report:hover {
+        border-color: var(--primary);
+        box-shadow: var(--shadow-md);
+        color: var(--text);
+    }
+    .quick-report .plus {
+        width: 32px; height: 32px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    .section-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+
+    /* SOS button */
+    .sos-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2.5rem 0 1.5rem;
+    }
+    .sos-btn {
+        width: 160px; height: 160px;
+        border-radius: 50%;
+        background: radial-gradient(circle at 40% 35%, #ff6b6b, #dc2626, #991b1b);
+        border: none;
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 900;
+        letter-spacing: 2px;
+        cursor: pointer;
+        box-shadow: 0 0 0 12px rgba(220,38,38,0.12), 0 8px 30px rgba(220,38,38,0.3);
+        transition: all 0.2s ease;
+        position: relative;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .sos-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 16px rgba(220,38,38,0.18), 0 12px 40px rgba(220,38,38,0.4);
+        color: #fff;
+    }
+    .sos-btn:active { transform: scale(0.97); }
+    .sos-label {
+        margin-top: 1rem;
+        font-size: 0.78rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    /* Action cards */
+    .action-card {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1rem 1.15rem;
+        text-decoration: none;
+        color: var(--text);
+        transition: all 0.2s ease;
+        margin-bottom: 0.65rem;
+    }
+    .action-card:hover {
+        border-color: #cbd5e1;
+        box-shadow: var(--shadow-md);
+        color: var(--text);
+        transform: translateX(3px);
+    }
+    .action-card .ac-icon {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    .action-card .ac-body { flex: 1; }
+    .action-card .ac-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.1rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .action-card .ac-desc { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+    .action-card .ac-arrow { color: #cbd5e1; font-size: 1.2rem; }
+    .action-card:hover .ac-arrow { color: var(--text-muted); }
+
+    /* Highlighted action card with left red border */
+    .action-card.highlight {
+        border-left: 3px solid #dc2626;
+    }
+
+    /* Stats row */
+    .stat-row {
+        display: flex;
+        gap: 0.75rem;
+        overflow-x: auto;
+        padding: 0.5rem 0;
+        -webkit-overflow-scrolling: touch;
+    }
+    .stat-pill {
+        flex-shrink: 0;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 0.85rem 1.15rem;
+        text-align: center;
+        min-width: 100px;
+    }
+    .stat-pill .num { font-size: 1.5rem; font-weight: 800; color: var(--text); line-height: 1; }
+    .stat-pill .lbl { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.25rem; }
+
+    /* Bottom nav */
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-around;
+        padding: 0.5rem 0 max(0.5rem, env(safe-area-inset-bottom));
+        z-index: 1050;
+    }
+    .bottom-nav a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 0.25rem 0.5rem;
+        transition: color 0.2s;
+    }
+    .bottom-nav a i { font-size: 1.3rem; margin-bottom: 0.15rem; }
+    .bottom-nav a.active { color: var(--primary); }
+    .bottom-nav a:hover { color: var(--primary); }
+
+    /* Push content above bottom nav on mobile */
+    @media (max-width: 991px) {
+        .navbar { display: none !important; }
+        main { padding-bottom: 4.5rem; }
+        .home-header { display: flex; }
+        .site-footer { display: none; }
+    }
+    @media (min-width: 992px) {
+        .bottom-nav { display: none; }
+        .home-header { display: none; }
+        .sos-btn { width: 180px; height: 180px; font-size: 2.2rem; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<!-- Hero Section -->
-<section class="position-relative overflow-hidden" style="padding: 6rem 0 4rem;">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-7 fade-in-up">
-                <span class="badge rounded-pill px-3 py-2 mb-3" style="background: rgba(139,92,246,0.15); color: var(--accent-purple); border: 1px solid rgba(139,92,246,0.3); font-size: 0.85rem;">
-                    <i class="bi bi-geo-alt-fill"></i> Meerut, Uttar Pradesh
-                </span>
-                <h1 style="font-size: 3.2rem; font-weight: 800; line-height: 1.15; letter-spacing: -1px;">
-                    Every Stray Deserves<br>
-                    <span style="background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                        A Second Chance
-                    </span>
-                </h1>
-                <p class="lead mt-3 mb-4" style="color: var(--text-muted); font-size: 1.15rem; max-width: 540px;">
-                    Report stray animal sightings, connect with nearby NGOs & vets, and help rescued animals find loving homes — all in one platform.
-                </p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <a href="{{ url_for('sightings.report_sighting') }}" class="btn btn-primary-gradient btn-lg" id="hero-report-btn">
-                        <i class="bi bi-megaphone-fill"></i> Report a Sighting
-                    </a>
-                    <a href="{{ url_for('adoption.list_adoptions') }}" class="btn btn-outline-glass btn-lg" id="hero-adopt-btn">
-                        <i class="bi bi-heart"></i> Adopt Now
-                    </a>
-                </div>
-            </div>
-            <div class="col-lg-5 d-none d-lg-block fade-in-up delay-2">
-                <div class="position-relative" style="text-align:center;">
-                    <div style="width: 340px; height: 340px; border-radius: 50%; background: var(--gradient-primary); opacity: 0.12; filter: blur(60px); position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
-                    <i class="bi bi-heart-pulse-fill" style="font-size: 12rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; position: relative;"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<div class="container" style="max-width: 600px;">
 
-<!-- Stats Strip -->
-<section style="padding: 2rem 0;">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-md-3 fade-in-up delay-1">
-                <div class="glass-card p-4 text-center">
-                    <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(245,158,11,0.12); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.8rem;">
-                        <i class="bi bi-eye-fill" style="font-size: 1.5rem; color: var(--accent-amber);"></i>
-                    </div>
-                    <h2 class="mb-1" style="font-weight: 800; font-size: 2.2rem;" id="stat-sightings">
-                        {{ stats.sightings }}
-                    </h2>
-                    <p class="mb-0" style="color: var(--text-muted); font-weight: 500;">Sightings</p>
-                </div>
-            </div>
-            <div class="col-md-3 fade-in-up delay-2">
-                <div class="glass-card p-4 text-center">
-                    <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(16,185,129,0.12); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.8rem;">
-                        <i class="bi bi-shield-check" style="font-size: 1.5rem; color: var(--accent-emerald);"></i>
-                    </div>
-                    <h2 class="mb-1" style="font-weight: 800; font-size: 2.2rem;" id="stat-rescues">
-                        {{ stats.rescues }}
-                    </h2>
-                    <p class="mb-0" style="color: var(--text-muted); font-weight: 500;">Rescued</p>
-                </div>
-            </div>
-            <div class="col-md-3 fade-in-up delay-3">
-                <div class="glass-card p-4 text-center">
-                    <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(6,182,212,0.12); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.8rem;">
-                        <i class="bi bi-house-heart-fill" style="font-size: 1.5rem; color: #06b6d4;"></i>
-                    </div>
-                    <h2 class="mb-1" style="font-weight: 800; font-size: 2.2rem;" id="stat-fosters">
-                        {{ stats.fosters }}
-                    </h2>
-                    <p class="mb-0" style="color: var(--text-muted); font-weight: 500;">In Foster</p>
-                </div>
-            </div>
-            <div class="col-md-3 fade-in-up delay-4">
-                <div class="glass-card p-4 text-center">
-                    <div style="width: 56px; height: 56px; border-radius: 14px; background: rgba(244,63,94,0.12); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.8rem;">
-                        <i class="bi bi-heart-fill" style="font-size: 1.5rem; color: var(--accent-rose);"></i>
-                    </div>
-                    <h2 class="mb-1" style="font-weight: 800; font-size: 2.2rem;" id="stat-adoptions">
-                        {{ stats.adoptions }}
-                    </h2>
-                    <p class="mb-0" style="color: var(--text-muted); font-weight: 500;">Adopted</p>
-                </div>
-            </div>
+    <!-- Mobile-only header (replaces navbar) -->
+    <div class="home-header">
+        <div class="brand"><i class="bi bi-heart-pulse-fill"></i> StrayRescue</div>
+        <div class="d-flex gap-2">
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('profile.my_profile') }}" style="color: var(--text-muted); font-size: 1.3rem;"><i class="bi bi-person-circle"></i></a>
+            {% else %}
+            <a href="{{ url_for('auth.login') }}" style="color: var(--text-muted); font-size: 1.3rem;"><i class="bi bi-box-arrow-in-right"></i></a>
+            {% endif %}
         </div>
     </div>
-</section>
 
-<!-- Features Section -->
-<section style="padding: 4rem 0;">
-    <div class="container">
-        <div class="text-center mb-5 fade-in-up">
-            <h2 style="font-weight: 800; font-size: 2rem; letter-spacing: -0.5px;">How It Works</h2>
-            <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto;">Three simple steps to make a difference in the life of a stray animal.</p>
-        </div>
-        <div class="row g-4">
-            <!-- Step 1 -->
-            <div class="col-md-4 fade-in-up delay-1">
-                <div class="glass-card p-4 h-100">
-                    <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                        <span style="color: #fff; font-weight: 700; font-size: 1.1rem;">1</span>
-                    </div>
-                    <h5 style="font-weight: 700;">Report a Sighting</h5>
-                    <p style="color: var(--text-muted); font-size: 0.92rem;">
-                        Spot a stray animal in distress? Report it with your location and photo. Your report automatically captures GPS coordinates.
-                    </p>
-                    <a href="{{ url_for('sightings.report_sighting') }}" class="text-decoration-none" style="color: var(--accent-purple); font-weight: 600; font-size: 0.9rem;">
-                        Report now <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-            <!-- Step 2 -->
-            <div class="col-md-4 fade-in-up delay-2">
-                <div class="glass-card p-4 h-100">
-                    <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--gradient-success); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                        <span style="color: #fff; font-weight: 700; font-size: 1.1rem;">2</span>
-                    </div>
-                    <h5 style="font-weight: 700;">Find Nearest Help</h5>
-                    <p style="color: var(--text-muted); font-size: 0.92rem;">
-                        Locate the nearest NGOs and veterinary clinics using GPS-based distance sorting. No paid maps API needed.
-                    </p>
-                    <a href="{{ url_for('ngo.nearest') }}" class="text-decoration-none" style="color: var(--accent-emerald); font-weight: 600; font-size: 0.9rem;">
-                        Find NGOs <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-            <!-- Step 3 -->
-            <div class="col-md-4 fade-in-up delay-3">
-                <div class="glass-card p-4 h-100">
-                    <div style="width: 48px; height: 48px; border-radius: 12px; background: var(--gradient-accent); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                        <span style="color: #fff; font-weight: 700; font-size: 1.1rem;">3</span>
-                    </div>
-                    <h5 style="font-weight: 700;">Adopt &amp; Give a Home</h5>
-                    <p style="color: var(--text-muted); font-size: 0.92rem;">
-                        Browse rescued animals ready for adoption. Give a stray the loving forever home they deserve.
-                    </p>
-                    <a href="{{ url_for('adoption.list_adoptions') }}" class="text-decoration-none" style="color: var(--accent-amber); font-weight: 600; font-size: 0.9rem;">
-                        Browse animals <i class="bi bi-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
+    <!-- Location -->
+    <div class="home-location">
+        <i class="bi bi-geo-alt-fill"></i> Meerut, Uttar Pradesh
     </div>
-</section>
 
-<!-- Top Volunteers Section -->
-{% if top_volunteers %}
-<section style="padding: 4rem 0; background: rgba(255,255,255,0.01);">
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-end mb-4 fade-in-up">
-            <div>
-                <h2 style="font-weight: 800; font-size: 2rem; letter-spacing: -0.5px;"><i class="bi bi-stars" style="color: var(--accent-amber);"></i> Community Heroes</h2>
-                <p style="color: var(--text-muted); margin-bottom: 0;">Top volunteers making a difference.</p>
-            </div>
-            <a href="{{ url_for('profile.leaderboard') }}" class="btn btn-outline-glass btn-sm">Full Leaderboard</a>
-        </div>
-        
-        <div class="row g-4">
-            {% for v in top_volunteers %}
-            <div class="col-md-4 fade-in-up delay-{{ loop.index }}">
-                <div class="glass-card p-4 text-center">
-                    <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--gradient-primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-                        <span style="font-size: 1.8rem; color: #fff; font-weight: 800;">{{ v.user.name[0].upper() }}</span>
-                    </div>
-                    <h5 style="font-weight: 700;">
-                        <a href="{{ url_for('profile.view_profile', user_id=v.user.id) }}" style="color: var(--text-primary); text-decoration: none;">{{ v.user.name }}</a>
-                    </h5>
-                    {% if v.badge %}
-                    <div class="mb-2">
-                        <span style="color: {{ v.badge.color }}; font-size: 0.85rem;"><i class="bi {{ v.badge.icon }}"></i> {{ v.badge.name }}</span>
-                    </div>
-                    {% endif %}
-                    <p style="color: var(--accent-emerald); font-weight: 600; margin-bottom: 0;">{{ v.resolved }} rescues</p>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
+    <!-- Alert banner -->
+    <div class="alert-banner fade-in-up">
+        <strong><i class="bi bi-exclamation-triangle-fill"></i> Note:</strong>
+        Report stray animals in distress. Volunteers & NGOs will be notified in your area.
     </div>
-</section>
-{% endif %}
 
-<!-- CTA Section -->
-<section style="padding: 4rem 0 2rem;">
-    <div class="container">
-        <div class="glass-card p-5 text-center fade-in-up" style="background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.1)); border-color: rgba(139,92,246,0.2);">
-            <h2 style="font-weight: 800; font-size: 1.8rem; margin-bottom: 0.8rem;">Ready to Make a Difference?</h2>
-            <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem;">
-                Join our growing community of animal lovers, volunteers, and NGOs working together to rescue strays in Meerut.
-            </p>
-            <a href="{{ url_for('auth.signup') }}" class="btn btn-primary-gradient btn-lg" id="cta-signup-btn">
-                <i class="bi bi-person-plus"></i> Create Free Account
-            </a>
+    <!-- Quick report -->
+    <div class="section-label fade-in-up delay-1">WHAT'S HAPPENING?</div>
+    <a href="{{ url_for('sightings.report_sighting') }}" class="quick-report fade-in-up delay-1">
+        <span style="flex:1; font-size: 0.95rem;">Tap: spotted a stray, need help...</span>
+        <span class="plus"><i class="bi bi-plus"></i></span>
+    </a>
+
+    <!-- SOS / Emergency Report -->
+    <div class="sos-container fade-in-up delay-2">
+        <a href="{{ url_for('sightings.report_sighting') }}" class="sos-btn">
+            REPORT
+        </a>
+        <div class="sos-label">TAP TO REPORT A SIGHTING</div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stat-row fade-in-up delay-2">
+        <div class="stat-pill">
+            <div class="num">{{ stats.sightings }}</div>
+            <div class="lbl">Sightings</div>
+        </div>
+        <div class="stat-pill">
+            <div class="num">{{ stats.rescues }}</div>
+            <div class="lbl">Rescued</div>
+        </div>
+        <div class="stat-pill">
+            <div class="num">{{ stats.fosters }}</div>
+            <div class="lbl">Fostered</div>
+        </div>
+        <div class="stat-pill">
+            <div class="num">{{ stats.adoptions }}</div>
+            <div class="lbl">Adopted</div>
         </div>
     </div>
-</section>
+
+    <!-- Action cards -->
+    <div style="margin-top: 1.5rem;" class="fade-in-up delay-3">
+        <a href="{{ url_for('ngo.nearest') }}" class="action-card">
+            <div class="ac-icon" style="background: #dbeafe; color: #2563eb;"><i class="bi bi-geo-alt-fill"></i></div>
+            <div class="ac-body">
+                <div class="ac-title">Find Nearest Help</div>
+                <p class="ac-desc">NGOs & vet clinics near you in Meerut</p>
+            </div>
+            <i class="bi bi-chevron-right ac-arrow"></i>
+        </a>
+
+        <a href="{{ url_for('adoption.list_adoptions') }}" class="action-card">
+            <div class="ac-icon" style="background: #fce7f3; color: #db2777;"><i class="bi bi-heart-fill"></i></div>
+            <div class="ac-body">
+                <div class="ac-title">Adopt a Pet</div>
+                <p class="ac-desc">Give a rescued animal a forever home</p>
+            </div>
+            <i class="bi bi-chevron-right ac-arrow"></i>
+        </a>
+
+        <a href="{{ url_for('foster.foster_home') }}" class="action-card">
+            <div class="ac-icon" style="background: #d1fae5; color: #059669;"><i class="bi bi-house-heart-fill"></i></div>
+            <div class="ac-body">
+                <div class="ac-title">Foster Care</div>
+                <p class="ac-desc">Temporarily shelter a rescued animal</p>
+            </div>
+            <i class="bi bi-chevron-right ac-arrow"></i>
+        </a>
+
+        <a href="{{ url_for('sightings.list_sightings') }}" class="action-card highlight">
+            <div class="ac-icon" style="background: #fee2e2; color: #dc2626;"><i class="bi bi-exclamation-circle-fill"></i></div>
+            <div class="ac-body">
+                <div class="ac-title">View All Sightings</div>
+                <p class="ac-desc">See reported strays and their status</p>
+            </div>
+            <i class="bi bi-chevron-right ac-arrow"></i>
+        </a>
+
+        <a href="{{ url_for('profile.leaderboard') }}" class="action-card">
+            <div class="ac-icon" style="background: #fef3c7; color: #d97706;"><i class="bi bi-trophy-fill"></i></div>
+            <div class="ac-body">
+                <div class="ac-title">Leaderboard</div>
+                <p class="ac-desc">Top volunteers making a difference</p>
+            </div>
+            <i class="bi bi-chevron-right ac-arrow"></i>
+        </a>
+    </div>
+
+</div>
+
+<!-- Bottom Navigation (mobile) -->
+<nav class="bottom-nav">
+    <a href="{{ url_for('home') }}" class="active"><i class="bi bi-house-fill"></i>Home</a>
+    <a href="{{ url_for('sightings.list_sightings') }}"><i class="bi bi-eye"></i>Sightings</a>
+    <a href="{{ url_for('sightings.report_sighting') }}"><i class="bi bi-plus-circle-fill"></i>Report</a>
+    <a href="{{ url_for('ngo.nearest') }}"><i class="bi bi-geo-alt"></i>NGOs</a>
+    <a href="{% if current_user.is_authenticated %}{{ url_for('profile.my_profile') }}{% else %}{{ url_for('auth.login') }}{% endif %}"><i class="bi bi-person"></i>Profile</a>
+</nav>
 {% endblock %}
